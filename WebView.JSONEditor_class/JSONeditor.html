@@ -62,7 +62,7 @@
       onEvent: function(node, event) {
         //console.log('Node Path', node.path);
         try {
-          window.chrome.webview.postMessage({ type: 'nodePath', path: node.path });
+          window.chrome.webview.postMessage({ type: 'nodePath', data: {path: node.path } });
         } catch (error) {
           console.error('Error posting message:', error);
         }

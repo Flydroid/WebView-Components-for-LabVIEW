@@ -1,0 +1,7 @@
+[
+    {
+        "hook-name": "Formatter",
+        "hook-path":"<vilib>:\\FPS\\dev-hooks\\lv-dev-hooks\\lv-fmt.vi",
+        "hook-type": "dev-hooks"
+    }
+]
