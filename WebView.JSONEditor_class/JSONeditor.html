@@ -52,9 +52,10 @@
       search: true,
       onChangeJSON: function(json) {
         console.log('change', json);
+        console.log('Editor Name:', editor.getName());
         // Send a webmessage with the new JSON
         try {
-          window.chrome.webview.postMessage({ type: 'onChangeJSON', data: {name: editor.getName(), data: json} });
+          window.chrome.webview.postMessage({ type: 'onChangeJSON', data: { "JSON": json } });
         } catch (error) {
           console.error('Error posting message:', error);
         }
