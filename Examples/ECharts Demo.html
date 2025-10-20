@@ -1,0 +1,341 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>ECharts WebView Component</title>
+  
+  <!-- ECharts Library -->
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      font-family: sans-serif;
+    }
+    
+    #chartContainer {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+
+<div id="chartContainer"></div>
+
+<script>
+  // Global chart instance
+  var myChart = null;
+
+  // Initialize chart on load
+  window.addEventListener('DOMContentLoaded', function() {
+    initChart('chartContainer');
+    
+    // Demo: Create a sample chart
+    createDemoChart();
+  });
+
+  // Initialize chart
+  function initChart(containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) {
+      console.error('Container not found:', containerId);
+      return false;
+    }
+    
+    myChart = echarts.init(container);
+    
+    // Auto-resize on window resize
+    window.addEventListener('resize', function() {
+      if (myChart) {
+        myChart.resize();
+      }
+    });
+    
+    console.log('Chart initialized');
+    return true;
+  }
+
+  // Main function: Set chart configuration from JSON
+  function setChartOption(optionJSON) {
+    try {
+      const option = typeof optionJSON === 'string' 
+        ? JSON.parse(optionJSON) 
+        : optionJSON;
+      
+      // Apply the option
+      myChart.setOption(option, true);
+      
+      console.log('Chart updated successfully');
+      return true;
+    } catch (error) {
+      console.error('Error setting chart option:', error);
+      return false;
+    }
+  }
+
+  // Update specific series data (faster than full update)
+  function updateSeriesData(seriesIndex, dataJSON) {
+    try {
+      const data = typeof dataJSON === 'string' 
+        ? JSON.parse(dataJSON) 
+        : dataJSON;
+      
+      myChart.setOption({
+        series: [{
+          seriesIndex: seriesIndex,
+          data: data
+        }]
+      });
+      
+      return true;
+    } catch (error) {
+      console.error('Error updating series data:', error);
+      return false;
+    }
+  }
+
+  // Append data (for real-time streaming)
+  function appendSeriesData(seriesIndex, newData) {
+    try {
+      const data = typeof newData === 'string' 
+        ? JSON.parse(newData) 
+        : newData;
+      
+      myChart.appendData({
+        seriesIndex: seriesIndex,
+        data: data
+      });
+      
+      return true;
+    } catch (error) {
+      console.error('Error appending data:', error);
+      return false;
+    }
+  }
+
+  // Clear chart
+  function clearChart() {
+    if (myChart) {
+      myChart.clear();
+    }
+  }
+
+  // Dispose chart (cleanup)
+  function disposeChart() {
+    if (myChart) {
+      myChart.dispose();
+      myChart = null;
+    }
+  }
+
+  // Get chart as base64 image
+  function getChartImage(type, backgroundColor) {
+    if (!myChart) return null;
+    
+    return myChart.getDataURL({
+      type: type || 'png',
+      pixelRatio: 2,
+      backgroundColor: backgroundColor || '#fff'
+    });
+  }
+
+  // Resize chart manually
+  function resizeChart(width, height) {
+    if (myChart) {
+      if (width && height) {
+        document.getElementById('chartContainer').style.width = width + 'px';
+        document.getElementById('chartContainer').style.height = height + 'px';
+      }
+      myChart.resize();
+    }
+  }
+
+  // Show loading animation
+  function showLoading(text) {
+    if (myChart) {
+      myChart.showLoading('default', {
+        text: text || 'Loading...',
+        color: '#4ea397',
+        maskColor: 'rgba(255, 255, 255, 0.8)'
+      });
+    }
+  }
+
+  // Hide loading animation
+  function hideLoading() {
+    if (myChart) {
+      myChart.hideLoading();
+    }
+  }
+
+  // Listen for messages from LabVIEW
+  if (window.chrome && window.chrome.webview) {
+    window.chrome.webview.addEventListener('message', function(event) {
+      const msg = event.data;
+      
+      switch(msg.type) {
+        case 'setOption':
+          setChartOption(msg.option);
+          break;
+          
+        case 'updateSeries':
+          updateSeriesData(msg.seriesIndex, msg.data);
+          break;
+          
+        case 'appendData':
+          appendSeriesData(msg.seriesIndex, msg.data);
+          break;
+          
+        case 'clear':
+          clearChart();
+          break;
+          
+        case 'resize':
+          resizeChart(msg.width, msg.height);
+          break;
+          
+        case 'showLoading':
+          showLoading(msg.text);
+          break;
+          
+        case 'hideLoading':
+          hideLoading();
+          break;
+          
+        case 'getImage':
+          const imageData = getChartImage(msg.imageType, msg.backgroundColor);
+          // Send back to LabVIEW
+          window.chrome.webview.postMessage({
+            type: 'imageData',
+            data: imageData
+          });
+          break;
+          
+        default:
+          console.warn('Unknown message type:', msg.type);
+      }
+    });
+  }
+
+  // Demo chart (for testing without LabVIEW)
+  function createDemoChart() {
+    const option = {
+      title: {
+        text: 'ECharts Demo - Multiple Chart Types'
+      },
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'cross'
+        }
+      },
+      legend: {
+        data: ['Line Chart', 'Bar Chart', 'Scatter Points', 'Area Chart']
+      },
+      xAxis: {
+        type: 'category',
+        data: ['00:00', '00:01', '00:02', '00:03', '00:04', '00:05'],
+        boundaryGap: false  // No gap for line charts
+      },
+      yAxis: {
+        type: 'value',
+        name: 'Temperature (°C)'
+      },
+      series: [
+        // 1. Line Chart (smooth)
+        {
+          name: 'Line Chart',
+          type: 'line',
+          smooth: true,
+          data: [20, 22, 21, 23, 24, 23],
+          lineStyle: {
+            width: 3,
+            color: '#5470c6'
+          },
+          symbol: 'circle',
+          symbolSize: 8
+        },
+        // 2. Bar Chart
+        {
+          name: 'Bar Chart',
+          type: 'bar',
+          data: [15, 18, 16, 20, 22, 19],
+          barWidth: '30%',
+          itemStyle: {
+            color: '#91cc75',
+            borderRadius: [5, 5, 0, 0]
+          }
+        },
+        // 3. Scatter Chart
+        {
+          name: 'Scatter Points',
+          type: 'scatter',
+          data: [[0, 18], [1, 20], [2, 19], [3, 21], [4, 23], [5, 22]],
+          symbolSize: 15,
+          itemStyle: {
+            color: '#ee6666',
+            borderColor: '#fff',
+            borderWidth: 2
+          }
+        },
+        // 4. Area Chart (line with area fill)
+        {
+          name: 'Area Chart',
+          type: 'line',
+          data: [17, 19, 18, 20, 21, 20],
+          areaStyle: {
+            color: 'rgba(250, 200, 88, 0.3)'
+          },
+          lineStyle: {
+            color: '#fac858',
+            width: 2
+          },
+          symbol: 'none'
+        }
+      ]
+    };
+    
+    setChartOption(option);
+    
+    // Simulate real-time updates
+    simulateRealTimeUpdates();
+  }
+
+  // Simulate 10 Hz updates
+  function simulateRealTimeUpdates() {
+    let counter = 5;
+    setInterval(function() {
+      counter++;
+      const newTime = '00:' + String(counter).padStart(2, '0');
+      
+      // Generate new random values for each series
+      const newLine = 20 + Math.random() * 5;
+      const newBar = 15 + Math.random() * 8;
+      const newScatter = [counter, 18 + Math.random() * 5];
+      const newArea = 17 + Math.random() * 5;
+      
+      // Get current data
+      const currentOption = myChart.getOption();
+      
+      // Update chart with new data point (keep last 20 points)
+      myChart.setOption({
+        xAxis: {
+          data: currentOption.xAxis[0].data.concat([newTime]).slice(-20)
+        },
+        series: [
+          // Update Line Chart
+          {
+            data: currentOption.series[0].data.concat([newLine]).slice(-20)
+          },
+        ]
+      });
+    }, 100); // 10 Hz
+  }
+
+</script>
+</body>
+</html>

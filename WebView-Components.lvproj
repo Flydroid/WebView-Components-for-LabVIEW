@@ -19,6 +19,8 @@
 		</Item>
 		<Item Name="WebView.lvclass" Type="LVClass" URL="../WebView_class/WebView.lvclass"/>
 		<Item Name="WebView.JSONEditor.lvclass" Type="LVClass" URL="../WebView.JSONEditor_class/WebView.JSONEditor.lvclass"/>
+		<Item Name="WebView.ECharts.lvclass" Type="LVClass" URL="../WebView.ECharts_class/WebView.JSONEditor_class/WebView.ECharts.lvclass"/>
+		<Item Name="ECharts.lvlib" Type="Library" URL="../ECharts.lvlib"/>
 		<Item Name="Dependencies" Type="Dependencies">
 			<Item Name="vi.lib" Type="Folder">
 				<Item Name="High Resolution Relative Seconds.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/High Resolution Relative Seconds.vi"/>
