@@ -17,8 +17,10 @@
 			<Item Name="Web Browser.vi" Type="VI" URL="../Examples/Web Browser.vi"/>
 			<Item Name="JSON Editor.vi" Type="VI" URL="../Examples/JSON Editor.vi"/>
 		</Item>
-		<Item Name="WebView.lvclass" Type="LVClass" URL="../WebView_class/WebView.lvclass"/>
-		<Item Name="WebView.JSONEditor.lvclass" Type="LVClass" URL="../WebView.JSONEditor_class/WebView.JSONEditor.lvclass"/>
+		<Item Name="Source" Type="Folder">
+			<Item Name="WebView.lvclass" Type="LVClass" URL="../Source/WebView_class/WebView.lvclass"/>
+			<Item Name="WebView.JSONEditor.lvclass" Type="LVClass" URL="../Source/WebView.JSONEditor_class/WebView.JSONEditor.lvclass"/>
+		</Item>
 		<Item Name="Dependencies" Type="Dependencies">
 			<Item Name="vi.lib" Type="Folder">
 				<Item Name="High Resolution Relative Seconds.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/High Resolution Relative Seconds.vi"/>

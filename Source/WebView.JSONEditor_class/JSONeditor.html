@@ -1,0 +1,193 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>JSONEditor | Load and save</title>
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/10.1.0/jsoneditor.css" rel="stylesheet" type="text/css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/10.1.0/jsoneditor.min.js"></script>
+
+  <style>
+    html, body {
+      font: 8pt sans-serif;
+      background-color: #fafafa;
+      color: black;
+      margin: 0;
+      padding: 0;
+    }
+    #jsoneditor {
+      width: auto;
+      height: 98vh; /* Set height to 100% of the viewport height */
+      overflow: auto; /* Add scroll if content overflows */
+      background-color: #fafafa;
+    }
+
+    .jsoneditor-autocomplete {
+      background-color: #f0f0f0; /* Change background color */
+      border: 1px solid #ccc; /* Change border color */
+      font-size: 12px; /* Change font size */
+      max-height: 200px; /* Set maximum height */
+      overflow-y: auto; /* Add vertical scroll if content overflows */
+    }
+
+    .jsoneditor-autocomplete .jsoneditor-autocomplete-option {
+      padding: 5px; /* Add padding to options */
+      cursor: pointer; /* Change cursor to pointer */
+    }
+
+
+
+  </style>
+</head>
+<body>
+
+<div id="jsoneditor"></div>
+
+<script>
+  var schema = {};
+
+  var daq = {}
+
+  var json ={};
+
+  var options = {
+      schema: schema,
+      mode: 'form', 
+      search: true,
+      onChangeJSON: function(json) {
+        console.log('change', json);
+        console.log('Editor Name:', editor.getName());
+        // Send a webmessage with the new JSON
+        postToLabVIEW('onChangeJSON', { "JSON": json });
+      },
+      onEvent: function(node, event) {
+        //console.log('Node Path', node.path);
+        postToLabVIEW('nodePath', { path: node.path });
+      },
+      autocomplete: { // autocomplete options
+        filter: 'start', // filter the options for a dropdown by their start
+        trigger: "focus", // show the dropdown when the editor is focused
+        caseSensitive: false, // case sensitive options
+        limit: 10,// maximum number of options to show in the dropdown
+        getOptions: function(schema, path, input, editor) {
+            // Print the name of the node
+            console.log('Node name:', path);
+
+            // Check if the name of the node is "Physical Channel"
+            if (path[2] === "Physical Channel") {
+            // return an array of valid options for the given path and input
+            return ['foo', 'bar', 'baz'];
+            }
+            // Return an empty array if the node name is not "Physical Channel"
+            return [];
+          },
+      },
+  };  
+
+  // create the editor
+  var container = document.getElementById('jsoneditor');
+  var editor = new JSONEditor(container, options, json);
+  editor.expandAll();
+
+  
+  // Helper function to post messages to LabVIEW
+  function postToLabVIEW(type, data) {
+    try {
+      if (window.chrome && window.chrome.webview) {
+        window.chrome.webview.postMessage({ type: type, data: data });
+      } else {
+        console.warn('WebView API not available');
+      }
+    } catch (error) {
+      console.error('Error posting message to LabVIEW:', error);
+    }
+  }
+
+
+  // Listen for messages from LabVIEW WebView
+  if (window.chrome && window.chrome.webview) {
+    window.chrome.webview.addEventListener('message', function(event) {
+      const msg = event.data;
+      
+      try {
+        switch(msg.type) {
+          case 'loadJSON':
+            // Load JSON data into editor
+            var jsonObject = typeof msg.json === 'string' 
+              ? JSON.parse(msg.json) 
+              : msg.json;
+            editor.set(jsonObject);
+            console.log("New JSON loaded:", jsonObject);
+            
+            // Set schema if provided
+            if (msg.schema) {
+              var schemaObject = typeof msg.schema === 'string'
+                ? JSON.parse(msg.schema)
+                : msg.schema;
+              editor.setSchema(schemaObject);
+              console.log("New Schema loaded:", schemaObject);
+            }
+            
+            // Set mode if provided (default to 'form')
+            var mode = msg.mode || 'form';
+            editor.setMode(mode);
+            
+            // Expand all nodes if requested
+            if (msg.expandAll === true) {
+              editor.expandAll();
+            }
+            break;
+            
+          case 'setMode':
+            // Change editor mode
+            var validModes = ['tree', 'view', 'form', 'code', 'text', 'preview'];
+            if (!validModes.includes(msg.mode)) {
+              console.error("Invalid mode. Valid modes are:", validModes);
+              postToLabVIEW('error', { message: 'Invalid mode: ' + msg.mode });
+              break;
+            }
+            
+            editor.setMode(msg.mode);
+            console.log("Editor mode changed to:", msg.mode);
+            
+            // Notify LabVIEW of success
+            postToLabVIEW('modeChanged', { mode: msg.mode });
+            break;
+            
+          case 'getJSON':
+            // Get current JSON and send to LabVIEW
+            var currentJSON = editor.get();
+            postToLabVIEW('currentJSON', currentJSON);
+            break;
+            
+          case 'expandAll':
+            editor.expandAll();
+            break;
+            
+          case 'collapseAll':
+            editor.collapseAll();
+            break;
+            
+          default:
+            console.warn('Unknown message type:', msg.type);
+        }
+      } catch (error) {
+        console.error('Error handling message:', error);
+        postToLabVIEW('error', { message: error.message, stack: error.stack });
+      }
+    });
+    
+    console.log('JSONEditor: WebView message listener registered');
+  }
+
+  // Helper function for compatibility (deprecated - use PostMessage)
+  function getJsonEditorSize() {
+    var jsoneditor = document.getElementById('jsoneditor');
+    var rect = jsoneditor.getBoundingClientRect();
+    return JSON.stringify(rect);
+  }
+
+</script>
+</body>
+</html>
