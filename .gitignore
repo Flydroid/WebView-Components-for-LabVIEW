@@ -1,2 +1,3 @@
 builds/*
-WebView-Components.aliases
+*.aliases
+*.lvlps
