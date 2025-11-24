@@ -1,0 +1,471 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>Tabulator | Data Table</title>
+
+  <link href="https://unpkg.com/tabulator-tables@6.2.5/dist/css/tabulator.min.css" rel="stylesheet">
+  <script type="text/javascript" src="https://unpkg.com/tabulator-tables@6.2.5/dist/js/tabulator.min.js"></script>
+
+  <style>
+    html, body {
+      font: 8pt sans-serif;
+      background-color: #fafafa;
+      color: black;
+      margin: 0;
+      padding: 0;
+    }
+    
+    #example-table {
+      width: auto;
+      height: 98vh; /* Set height to 98% of the viewport height */
+      background-color: #fafafa;
+    }
+
+    .tabulator {
+      font-size: 12px;
+      border: 1px solid #ccc;
+    }
+
+    .tabulator-header {
+      background-color: #f0f0f0;
+      border-bottom: 2px solid #ddd;
+    }
+
+    .tabulator-row {
+      background-color: white;
+    }
+
+    .tabulator-row:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    .tabulator-row:hover {
+      background-color: #e6f3ff;
+    }
+  </style>
+</head>
+<body>
+
+<div id="example-table"></div>
+
+<script>
+  // Initialize table with empty data
+  var table = new Tabulator("#example-table", {
+    data: [],
+    autoColumns: true,
+    layout: "fitColumns",
+    height: "100%",
+    
+    // Pagination (like demo)
+    pagination: "local",
+    paginationSize: 7,
+    paginationSizeSelector: [5, 10, 25, 50, 100],
+    paginationCounter: "rows",
+    
+    // Column features
+    movableColumns: true,
+    resizableColumns: true,
+    resizableRows: true,
+    columnHeaderSortMulti: true,
+    
+    // Row selection
+    selectable: true,
+    
+    // Visual enhancements
+    tooltipsHeader: true,
+    printAsHtml: true,
+    printHeader: "<h1>Tabulate Data</h1>",
+    printFooter: "<h2>Tabulator</h2>",
+    
+    // Enable editing (like demo)
+    cellEdited: function(cell) {
+      console.log("Cell edited:", cell.getField(), cell.getValue());
+      postToLabVIEW('cellEdited', { 
+        field: cell.getField(), 
+        value: cell.getValue(), 
+        rowData: cell.getRow().getData(),
+        rowIndex: cell.getRow().getIndex()
+      });
+    },
+    rowClick: function(e, row) {
+      console.log("Row clicked:", row.getData());
+      postToLabVIEW('rowClick', { data: row.getData(), index: row.getIndex() });
+    },
+    cellClick: function(e, cell) {
+      console.log("Cell clicked:", cell.getValue());
+      postToLabVIEW('cellClick', { 
+        value: cell.getValue(), 
+        field: cell.getField(), 
+        rowData: cell.getRow().getData(),
+        rowIndex: cell.getRow().getIndex()
+      });
+    },
+    dataChanged: function(data) {
+      console.log("Data changed:", data);
+      postToLabVIEW('dataChanged', { data: data });
+    },
+    tableBuilt: function() {
+      console.log("Table built successfully");
+      postToLabVIEW('tableBuilt', { message: "Table initialized" });
+    }
+  });
+
+  // Helper function to post messages to LabVIEW
+  function postToLabVIEW(type, data) {
+    try {
+      if (window.chrome && window.chrome.webview) {
+        window.chrome.webview.postMessage({ type: type, data: data });
+      } else {
+        console.warn('WebView API not available');
+      }
+    } catch (error) {
+      console.error('Error posting message to LabVIEW:', error);
+    }
+  }
+
+  // Listen for messages from LabVIEW WebView
+  if (window.chrome && window.chrome.webview) {
+    window.chrome.webview.addEventListener('message', function(event) {
+      const msg = event.data;
+      
+      try {
+        switch(msg.type) {
+          case 'loadData':
+            // Load data into table
+            var dataArray = typeof msg.data === 'string' 
+              ? JSON.parse(msg.data) 
+              : msg.data;
+            table.setData(dataArray);
+            console.log("New data loaded:", dataArray);
+            
+            // Apply columns configuration if provided
+            if (msg.columns) {
+              var columnsConfig = typeof msg.columns === 'string'
+                ? JSON.parse(msg.columns)
+                : msg.columns;
+              table.setColumns(columnsConfig);
+              console.log("Columns configuration applied:", columnsConfig);
+            }
+            break;
+            
+          case 'setColumns':
+            // Set column definitions
+            var columnsConfig = typeof msg.columns === 'string'
+              ? JSON.parse(msg.columns)
+              : msg.columns;
+            table.setColumns(columnsConfig);
+            console.log("Columns set:", columnsConfig);
+            break;
+            
+          case 'getData':
+            // Get current table data and send to LabVIEW
+            var currentData = table.getData();
+            postToLabVIEW('currentData', currentData);
+            break;
+            
+          case 'addRow':
+            // Add a new row
+            var rowData = typeof msg.data === 'string'
+              ? JSON.parse(msg.data)
+              : msg.data;
+            table.addRow(rowData, msg.position || true);
+            console.log("Row added:", rowData);
+            break;
+            
+          case 'deleteRow':
+            // Delete row by index or ID
+            if (msg.index !== undefined) {
+              table.deleteRow(msg.index);
+              console.log("Row deleted at index:", msg.index);
+            } else if (msg.id !== undefined) {
+              table.deleteRow(msg.id);
+              console.log("Row deleted with ID:", msg.id);
+            }
+            break;
+            
+          case 'updateRow':
+            // Update row data
+            var rowData = typeof msg.data === 'string'
+              ? JSON.parse(msg.data)
+              : msg.data;
+            table.updateRow(msg.id || msg.index, rowData);
+            console.log("Row updated:", rowData);
+            break;
+            
+          case 'clearData':
+            // Clear all table data
+            table.clearData();
+            console.log("Table data cleared");
+            break;
+            
+          case 'downloadCSV':
+            // Download table data as CSV
+            var filename = msg.filename || "data.csv";
+            table.download("csv", filename);
+            break;
+            
+          case 'downloadJSON':
+            // Download table data as JSON
+            var filename = msg.filename || "data.json";
+            table.download("json", filename);
+            break;
+            
+          case 'print':
+            // Print table
+            table.print();
+            break;
+            
+          case 'selectRow':
+            // Select row by index or ID
+            if (msg.index !== undefined) {
+              table.selectRow(msg.index);
+            } else if (msg.id !== undefined) {
+              table.selectRow(msg.id);
+            }
+            break;
+            
+          case 'deselectRow':
+            // Deselect row by index or ID
+            if (msg.index !== undefined) {
+              table.deselectRow(msg.index);
+            } else if (msg.id !== undefined) {
+              table.deselectRow(msg.id);
+            }
+            break;
+            
+          case 'getSelectedRows':
+            // Get selected rows data
+            var selectedData = table.getSelectedData();
+            postToLabVIEW('selectedRows', selectedData);
+            break;
+            
+          case 'redraw':
+            // Force table redraw
+            table.redraw();
+            console.log("Table redrawn");
+            break;
+            
+          case 'enableAdvancedFormatters':
+            // Enable advanced column formatters like progress bars, stars, tick/cross
+            var advancedColumns = [
+              {title: "Name", field: "name", editor: "input", headerFilter: "input"},
+              {title: "Task Progress", field: "progress", formatter: "progress", editor: "number", headerFilter: "number"},
+              {title: "Gender", field: "gender", editor: "select", editorParams: {values: ["male", "female"]}, headerFilter: "select", headerFilterParams: {values: ["", "male", "female"]}},
+              {title: "Rating", field: "rating", formatter: "star", editor: "star", headerFilter: "number"},
+              {title: "Color", field: "col", editor: "input", headerFilter: "input"},
+              {title: "Date Of Birth", field: "dob", sorter: "date", headerFilter: "input"},
+              {title: "Driver", field: "car", formatter: "tickCross", editor: "tickCross", headerFilter: "tickCross"}
+            ];
+            table.setColumns(advancedColumns);
+            console.log("Advanced formatters enabled");
+            break;
+            
+          case 'enableAutoColumns':
+            // Revert to auto-generated columns from data
+            table.setColumns([]);
+            table.setData(table.getData()); // Refresh to regenerate auto columns
+            console.log("Auto columns enabled");
+            break;
+            
+          case 'setPaginationSize':
+            // Set pagination size
+            var size = msg.size || 10;
+            table.setPageSize(size);
+            console.log("Pagination size set to:", size);
+            break;
+            
+          case 'setPage':
+            // Navigate to specific page
+            var page = msg.page || 1;
+            table.setPage(page);
+            console.log("Navigated to page:", page);
+            break;
+            
+          case 'getPage':
+            // Get current page info
+            var pageInfo = {
+              page: table.getPage(),
+              pageMax: table.getPageMax(),
+              pageSize: table.getPageSize()
+            };
+            postToLabVIEW('pageInfo', pageInfo);
+            break;
+            
+          case 'setLabVIEWColumns':
+            // Set columns with LabVIEW data type inference
+            var columnSpecs = typeof msg.columns === 'string'
+              ? JSON.parse(msg.columns)
+              : msg.columns;
+            var inferredColumns = columnSpecs.map(spec => inferLabVIEWColumn(spec));
+            table.setColumns(inferredColumns);
+            console.log("LabVIEW columns set with inference:", inferredColumns);
+            break;
+            
+          default:
+            console.warn('Unknown message type:', msg.type);
+        }
+      } catch (error) {
+        console.error('Error handling message:', error);
+        postToLabVIEW('error', { message: error.message, stack: error.stack });
+      }
+    });
+    
+    console.log('Tabulator: WebView message listener registered');
+  }
+
+  // Helper function for compatibility
+  function getTableSize() {
+    var tableElement = document.getElementById('example-table');
+    var rect = tableElement.getBoundingClientRect();
+    return JSON.stringify(rect);
+  }
+
+  // Get table statistics
+  function getTableStats() {
+    return {
+      rowCount: table.getDataCount(),
+      columnCount: table.getColumns().length,
+      selectedRowCount: table.getSelectedRows().length
+    };
+  }
+
+  // LabVIEW data type to Tabulator column inference
+  function inferLabVIEWColumn(spec) {
+    var column = {
+      title: spec.title || spec.field,
+      field: spec.field
+    };
+    
+    // Apply LabVIEW data type specific configurations
+    switch(spec.dataType) {
+      case 'string':
+        // String options: 'input' (default), 'textarea', 'autocomplete'
+        var stringEditor = spec.editorType || 'input';
+        column.editor = stringEditor;
+        column.headerFilter = "input";
+        column.sorter = "string";
+        
+        if (stringEditor === 'textarea') {
+          // Multi-line text editing
+        } else if (stringEditor === 'autocomplete' && spec.options) {
+          column.editorParams = { values: spec.options };
+        }
+        break;
+        
+      case 'number':
+      case 'decimal':
+      case 'fractional':
+        // Number display options: 'default', 'progress', 'star', 'money'
+        var numberDisplay = spec.displayType || 'default';
+        
+        column.headerFilter = "number";
+        column.sorter = "number";
+        
+        switch(numberDisplay) {
+          case 'progress':
+            column.formatter = "progress";
+            column.editor = "number";
+            break;
+          case 'rating':
+          case 'star':
+            column.formatter = "star";
+            column.editor = "star";
+            column.headerFilter = "number";
+            break;
+          case 'money':
+            column.formatter = "money";
+            column.editor = "number";
+            break;
+          case 'range':
+            column.editor = "range";
+            if (spec.min !== undefined) column.editorParams = { min: spec.min, max: spec.max || 100 };
+            break;
+          default:
+            column.editor = "number";
+        }
+        
+        // Auto-detect special ranges if not explicitly set
+        if (numberDisplay === 'default') {
+          if (spec.range === 'progress' || (spec.min === 0 && spec.max === 100)) {
+            column.formatter = "progress";
+          } else if (spec.range === 'rating' || (spec.min === 1 && spec.max === 5)) {
+            column.formatter = "star";
+            column.editor = "star";
+          }
+        }
+        break;
+        
+      case 'enum':
+        column.editor = "select";
+        column.headerFilter = "select";
+        column.sorter = "string";
+        if (spec.options && Array.isArray(spec.options)) {
+          column.editorParams = { values: spec.options };
+          column.headerFilterParams = { values: [""].concat(spec.options) };
+        }
+        break;
+        
+      case 'timestamp':
+      case 'datetime':
+        // Timestamp display options: 'datetime' (default), 'date', 'time', 'datetimediff'
+        var timeDisplay = spec.displayType || 'datetime';
+        var timeEditor = spec.editorType || (spec.editable ? 'datetime' : null);
+        
+        column.sorter = "date";
+        column.headerFilter = "input";
+        
+        switch(timeDisplay) {
+          case 'date':
+            column.formatter = "datetime";
+            column.formatterParams = { outputFormat: "DD/MM/YYYY" };
+            break;
+          case 'time':
+            column.formatter = "datetime";
+            column.formatterParams = { outputFormat: "HH:mm:ss" };
+            break;
+          case 'datetimediff':
+            column.formatter = "datetimediff";
+            break;
+          default:
+            column.formatter = "datetime";
+        }
+        
+        // Editor options: 'datetime', 'date', 'time', null (read-only)
+        if (timeEditor) {
+          column.editor = timeEditor;
+        }
+        break;
+        
+      case 'boolean':
+        column.formatter = "tickCross";
+        column.editor = "tickCross";
+        column.headerFilter = "tickCross";
+        column.sorter = "boolean";
+        break;
+        
+      default:
+        // Default to string behavior
+        column.editor = "input";
+        column.headerFilter = "input";
+        column.sorter = "string";
+    }
+    
+    // Override with any explicit specifications
+    if (spec.formatter) column.formatter = spec.formatter;
+    if (spec.editor !== undefined) column.editor = spec.editor;
+    if (spec.headerFilter !== undefined) column.headerFilter = spec.headerFilter;
+    if (spec.sorter) column.sorter = spec.sorter;
+    if (spec.width) column.width = spec.width;
+    if (spec.minWidth) column.minWidth = spec.minWidth;
+    if (spec.maxWidth) column.maxWidth = spec.maxWidth;
+    if (spec.resizable !== undefined) column.resizable = spec.resizable;
+    if (spec.visible !== undefined) column.visible = spec.visible;
+    
+    return column;
+  }
+
+</script>
+</body>
+</html>

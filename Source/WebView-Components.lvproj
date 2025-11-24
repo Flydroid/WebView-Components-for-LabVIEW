@@ -14,13 +14,19 @@
 		<Property Name="server.vi.propertiesEnabled" Type="Bool">true</Property>
 		<Property Name="specify.custom.address" Type="Bool">false</Property>
 		<Item Name="Examples" Type="Folder">
-			<Item Name="Web Browser.vi" Type="VI" URL="../Examples/Web Browser.vi"/>
-			<Item Name="JSON Editor.vi" Type="VI" URL="../Examples/JSON Editor.vi"/>
+			<Item Name="Tabulator.vi" Type="VI" URL="../../Examples/Tabulator.vi"/>
+			<Item Name="JSON Editor.vi" Type="VI" URL="../../Examples/JSON Editor.vi"/>
+			<Item Name="Web Browser.vi" Type="VI" URL="../../Examples/Web Browser.vi"/>
 		</Item>
 		<Item Name="Source" Type="Folder">
 			<Item Name="WebView.lvclass" Type="LVClass" URL="../WebView_class/WebView.lvclass"/>
 			<Item Name="WebView.JSONEditor.lvclass" Type="LVClass" URL="../WebView.JSONEditor_class/WebView.JSONEditor.lvclass"/>
+			<Item Name="WebView.Tabulator.lvclass" Type="LVClass" URL="../WebView.Tabulator_class/WebView.Tabulator.lvclass"/>
 		</Item>
+		<Item Name="Message Types--enum.ctl" Type="VI" URL="../WebView.Tabulator_class/Message Types--enum.ctl"/>
+		<Item Name="Parse JSON Schema.vi" Type="VI" URL="../../JSON Schema to Cluster Generator/Parse JSON Schema.vi"/>
+		<Item Name="types--enum.ctl" Type="VI" URL="../../JSON Schema to Cluster Generator/types--enum.ctl"/>
+		<Item Name="Parse JSON Schema Recursive.vi" Type="VI" URL="../../JSON Schema to Cluster Generator/Parse JSON Schema Recursive.vi"/>
 		<Item Name="Dependencies" Type="Dependencies">
 			<Item Name="vi.lib" Type="Folder">
 				<Item Name="Microsoft.Web.WebView2.Core.dll" Type="Document" URL="/&lt;vilib&gt;/sklein/WebView2/Libs/Microsoft.Web.WebView2.Core.dll"/>
@@ -44,6 +50,7 @@
 				<Item Name="JDP Timestamp.lvlib" Type="Library" URL="/&lt;vilib&gt;/JDP Science/JDP Science Common Utilities/Timestamp/JDP Timestamp.lvlib"/>
 				<Item Name="LVNumericRepresentation.ctl" Type="VI" URL="/&lt;vilib&gt;/numeric/LVNumericRepresentation.ctl"/>
 				<Item Name="1D String Array to Delimited String.vi" Type="VI" URL="/&lt;vilib&gt;/AdvancedString/1D String Array to Delimited String.vi"/>
+				<Item Name="LVPointTypeDef.ctl" Type="VI" URL="/&lt;vilib&gt;/Utility/miscctls.llb/LVPointTypeDef.ctl"/>
 			</Item>
 			<Item Name="mscorlib" Type="VI" URL="mscorlib">
 				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
