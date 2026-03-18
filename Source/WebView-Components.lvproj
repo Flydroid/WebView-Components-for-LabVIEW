@@ -17,10 +17,8 @@
 		<Item Name="Examples" Type="Folder">
 			<Item Name="Tabulator.vi" Type="VI" URL="../../Examples/Tabulator.vi"/>
 			<Item Name="JSON Editor.vi" Type="VI" URL="../../Examples/JSON Editor.vi"/>
-			<Item Name="Web Browser.vi" Type="VI" URL="../../Examples/Web Browser.vi"/>
 		</Item>
 		<Item Name="Source" Type="Folder">
-			<Item Name="WebView.lvclass" Type="LVClass" URL="../WebView_class/WebView.lvclass"/>
 			<Item Name="WebView.Tabulator.lvclass" Type="LVClass" URL="../WebView.Tabulator_class/WebView.Tabulator.lvclass"/>
 			<Item Name="Component.lvclass" Type="LVClass" URL="../Component_class/Component.lvclass"/>
 			<Item Name="Component.JSONEditor.lvclass" Type="LVClass" URL="../Component.JSONEditor_class/Component.JSONEditor.lvclass"/>
