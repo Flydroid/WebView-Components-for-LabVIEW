@@ -21,9 +21,9 @@
 		</Item>
 		<Item Name="Source" Type="Folder">
 			<Item Name="WebView.lvclass" Type="LVClass" URL="../WebView_class/WebView.lvclass"/>
-			<Item Name="WebView.JSONEditor.lvclass" Type="LVClass" URL="../WebView.JSONEditor_class/WebView.JSONEditor.lvclass"/>
 			<Item Name="WebView.Tabulator.lvclass" Type="LVClass" URL="../WebView.Tabulator_class/WebView.Tabulator.lvclass"/>
 			<Item Name="Component.lvclass" Type="LVClass" URL="../Component_class/Component.lvclass"/>
+			<Item Name="Component.JSONEditor.lvclass" Type="LVClass" URL="../Component.JSONEditor_class/Component.JSONEditor.lvclass"/>
 		</Item>
 		<Item Name="Message Types--enum.ctl" Type="VI" URL="../WebView.Tabulator_class/Message Types--enum.ctl"/>
 		<Item Name="Parse JSON Schema.vi" Type="VI" URL="../../JSON Schema to Cluster Generator/Parse JSON Schema.vi"/>
