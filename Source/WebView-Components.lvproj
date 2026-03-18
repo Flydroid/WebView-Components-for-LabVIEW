@@ -19,7 +19,7 @@
 			<Item Name="JSON Editor.vi" Type="VI" URL="../../Examples/JSON Editor.vi"/>
 		</Item>
 		<Item Name="Source" Type="Folder">
-			<Item Name="WebView.Tabulator.lvclass" Type="LVClass" URL="../WebView.Tabulator_class/WebView.Tabulator.lvclass"/>
+			<Item Name="Component.Tabulator.lvclass" Type="LVClass" URL="../Component.Tabulator_class/Component.Tabulator.lvclass"/>
 			<Item Name="Component.lvclass" Type="LVClass" URL="../Component_class/Component.lvclass"/>
 			<Item Name="Component.JSONEditor.lvclass" Type="LVClass" URL="../Component.JSONEditor_class/Component.JSONEditor.lvclass"/>
 		</Item>
