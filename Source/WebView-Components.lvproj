@@ -19,14 +19,11 @@
 			<Item Name="JSON Editor.vi" Type="VI" URL="../../Examples/JSON Editor.vi"/>
 		</Item>
 		<Item Name="Source" Type="Folder">
-			<Item Name="Component.Tabulator.lvclass" Type="LVClass" URL="../Component.Tabulator_class/Component.Tabulator.lvclass"/>
 			<Item Name="Component.lvclass" Type="LVClass" URL="../Component_class/Component.lvclass"/>
+			<Item Name="Component.Tabulator.lvclass" Type="LVClass" URL="../Component.Tabulator_class/Component.Tabulator.lvclass"/>
 			<Item Name="Component.JSONEditor.lvclass" Type="LVClass" URL="../Component.JSONEditor_class/Component.JSONEditor.lvclass"/>
 		</Item>
-		<Item Name="Message Types--enum.ctl" Type="VI" URL="../WebView.Tabulator_class/Message Types--enum.ctl"/>
-		<Item Name="Parse JSON Schema.vi" Type="VI" URL="../../JSON Schema to Cluster Generator/Parse JSON Schema.vi"/>
-		<Item Name="types--enum.ctl" Type="VI" URL="../../JSON Schema to Cluster Generator/types--enum.ctl"/>
-		<Item Name="Parse JSON Schema Recursive.vi" Type="VI" URL="../../JSON Schema to Cluster Generator/Parse JSON Schema Recursive.vi"/>
+		<Item Name="Test Set Column.vi" Type="VI" URL="../Component.Tabulator_class/Test Set Column.vi"/>
 		<Item Name="Dependencies" Type="Dependencies"/>
 		<Item Name="Build Specifications" Type="Build"/>
 	</Item>

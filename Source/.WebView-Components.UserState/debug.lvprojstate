@@ -1,5 +1,46 @@
 <Configuration>
   <Target name="My Computer">
     <EnableDebuggingForAllVIs>0</EnableDebuggingForAllVIs>
+    <VI name="Component.JSONEditor.lvclass:Component.JSONEditor_Init.vi">
+      <Breakpoints>
+        <NodeIndexes>
+        </NodeIndexes>
+        <SignalIndexes>
+        </SignalIndexes>
+      </Breakpoints>
+      <Probes>
+        <Generic>
+          <SignalUID value="344"/>
+        </Generic>
+      </Probes>
+    </VI>
+    <VI name="Component.Tabulator.lvclass:Component.Tabulator_Init.vi">
+      <Breakpoints>
+        <NodeIndexes>
+        </NodeIndexes>
+        <SignalIndexes>
+        </SignalIndexes>
+      </Breakpoints>
+      <Probes>
+        <Generic>
+          <SignalUID value="568"/>
+        </Generic>
+      </Probes>
+    </VI>
+    <VI name="Test Set Column.vi">
+      <Breakpoints>
+        <NodeIndexes>
+        </NodeIndexes>
+        <SignalIndexes>
+        </SignalIndexes>
+      </Breakpoints>
+      <Probes>
+        <Generic>
+          <SignalUID value="304"/>
+          <SignalUID value="1853"/>
+          <SignalUID value="2235"/>
+        </Generic>
+      </Probes>
+    </VI>
   </Target>
 </Configuration>
