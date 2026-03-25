@@ -46,3 +46,4 @@ Embeds the [Tabulator.js](https://tabulator.info) library (v6.2.5), providing an
 | VI | Description |
 |---|---|
 | `Load Data.vi` | Loads a JSON array of objects into the table |
+| `Set Columns.vi` | Defines the functionality and visuals of the columns based on the [tabulator column defintion syntax](https://tabulator.info/docs/6.4/columns#definition) |
